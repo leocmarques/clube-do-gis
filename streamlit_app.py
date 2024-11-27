@@ -81,7 +81,7 @@ email = st.text_input('Digite o e-mail do comprador:')
 if st.button('Buscar Compras'):
     if email:
         try:
-             # Chamada à API para obter os participantes
+            # Chamada à API para obter os participantes
             participantes = hotmart.get_sales_participants(buyer_email=email)
             comprador = buscar_informacoes_comprador(email, participantes)
             if comprador:
@@ -95,22 +95,33 @@ if st.button('Buscar Compras'):
                 st.write(f"CPF/CNPJ: {[doc['value'] for doc in comprador.get('documents', [])]}")
             else:
                 st.warning("Nenhuma informação do comprador encontrada.")
-            
+
             # Chamada à API para obter o histórico de vendas
             vendas = hotmart.get_sales_history(buyer_email=email)
             if vendas:
                 st.success(f'Foram encontradas {len(vendas)} compras para o e-mail {email}.')
+
+                # Criando uma lista para armazenar as informações de vendas
+                vendas_data = []
                 for venda in vendas:
-                    st.write(f"ID da Venda: {venda.get('purchase', {}).get('transaction')}")
-                    st.write(f"Produto: {venda.get('product', {}).get('name')}")
                     data_compra = converter_timestamp(venda.get('purchase', {}).get('order_date'))
-                    st.write(f"Data da Compra: {data_compra}")
-                    st.write(f"Valor: {venda.get('purchase', {}).get('hotmart_fee', {}).get('base')}")
-                    st.write(f"Status: {venda.get('purchase', {}).get('status')}")
-                    st.write("---")
+                    vendas_data.append({
+                        "ID da Venda": venda.get('purchase', {}).get('transaction'),
+                        "Produto": venda.get('product', {}).get('name'),
+                        "Data da Compra": data_compra,
+                        "Valor": venda.get('purchase', {}).get('hotmart_fee', {}).get('base', 'Não disponível'),
+                        "Status": venda.get('purchase', {}).get('status', 'Não disponível'),
+                    })
+
+                # Convertendo a lista de vendas em um DataFrame
+                df_vendas = pd.DataFrame(vendas_data)
+
+                # Exibindo os dados como uma tabela interativa
+                st.dataframe(df_vendas)
+
             else:
                 st.warning('Nenhuma compra encontrada para este e-mail.')
-           
+
         except Exception as e:
             st.error(f"Ocorreu um erro ao buscar as informações: {e}")
     else:
