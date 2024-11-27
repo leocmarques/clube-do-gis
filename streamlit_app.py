@@ -36,10 +36,10 @@ if not check_password():
 
 # Main Streamlit app starts here
 
-# Configuração das credenciais da Hotmart
-#CLIENT_ID = 'seu_client_id'
-#CLIENT_SECRET = 'seu_client_secret'
-#BASIC_TOKEN = 'seu_basic_token'
+# Obtém credenciais da API do Streamlit Secrets
+CLIENT_ID = st.secrets["CLIENT_ID"]
+CLIENT_SECRET = st.secrets["CLIENT_SECRET"]
+BASIC_TOKEN = st.secrets["BASIC_TOKEN"]
 
 # Inicialização do cliente Hotmart com nível de log INFO
 hotmart = Hotmart(
