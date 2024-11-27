@@ -4,6 +4,7 @@ import logging
 from datetime import datetime
 import hmac
 import pandas as pd
+import requests
 
 
 def check_password():
@@ -136,8 +137,56 @@ with tabs[0]:
 # Conteúdo da aba "Curseduca"
 with tabs[1]:
     st.header("Aba Curseduca")
-    st.write("Conteúdo relacionado ao sistema Curseduca será exibido aqui.")
-    # Adicione a lógica e elementos visuais necessários para a aba Curseduca.
+    import requests
+import pandas as pd
+import streamlit as st
+
+# Função para fazer requisição à API da Curseduca
+def fetch_progress_report(api_url, token, email):
+    try:
+        headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+        payload = {"email": email}  # Filtro por e-mail
+        response = requests.post(api_url, headers=headers, json=payload)
+
+        # Verifica se a resposta foi bem-sucedida
+        if response.status_code == 200:
+            return response.json()
+        else:
+            st.error(f"Erro ao obter dados da API: {response.status_code} - {response.text}")
+            return None
+    except Exception as e:
+        st.error(f"Erro na requisição à API: {e}")
+        return None
+
+# Aba "Curseduca"
+with tabs[1]:
+    st.header("Relatório de Progresso - Curseduca")
+    st.write("Visualize o progresso dos alunos filtrando pelo e-mail.")
+
+    # Obter o endpoint e o token dos secrets
+    api_key = st.secrets["CURSEDUCA_API"]
+    token = st.secrets["CURSEDUCA_TOKEN"]
+
+    # Entrada de e-mail
+    email = st.text_input("Digite o e-mail do aluno:")
+
+    if st.button("Gerar Relatório", key="curseduca_report"):
+        if email:
+            data = fetch_progress_report(api_key, token, email)
+            if data:
+                # Converta os dados retornados em um DataFrame para exibição
+                if isinstance(data, list):  # Se a resposta for uma lista de objetos
+                    df = pd.DataFrame(data)
+                else:  # Se for um único objeto, transforme em lista
+                    df = pd.DataFrame([data])
+
+                # Exiba os dados em formato de tabela
+                st.dataframe(df)
+            else:
+                st.warning("Nenhum dado encontrado para o e-mail informado.")
+        else:
+            st.warning("Por favor, insira um e-mail válido.")
+
 
 # Conteúdo da aba "Google Sheets"
 with tabs[2]:
