@@ -72,10 +72,10 @@ if st.button('Buscar Compras'):
             if vendas:
                 st.success(f'Foram encontradas {len(vendas)} compras para o e-mail {email}.')
                 for venda in vendas:
-                    st.write(f"ID da Venda: {venda.get('purchase',{}.get('transaction')}")
+                    st.write(f"ID da Venda: {venda.get('purchase',{}).get('transaction')}")
                     st.write(f"Produto: {venda.get('product', {}).get('name')}")
-                    st.write(f"Data da Compra: {venda.get('purchase',{}.get('order_date')}")
-                    st.write(f"Status: {venda.get('purchase',{}.get('status')}")
+                    st.write(f"Data da Compra: {venda.get('purchase',{}).get('order_date')}")
+                    st.write(f"Status: {venda.get('purchase',{}).get('status')}")
                     st.write("---")
             else:
                 st.warning('Nenhuma compra encontrada para este e-mail.')
