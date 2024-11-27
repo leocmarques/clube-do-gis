@@ -76,9 +76,10 @@ if st.button('Buscar Compras'):
                 for venda in vendas:
                     st.write(f"ID da Venda: {venda.get('purchase',{}).get('transaction')}")
                     st.write(f"Produto: {venda.get('product', {}).get('name')}")
-                    timestamp = venda.get('purchase',{}).get('order_date')
-                    if timestamp:
-                        data_convertida = datetime.fromtimestamp(int(timestamp)).strftime("%d/%m/%Y-%H:%M")
+                    timestamp_ms = venda.get('purchase',{}).get('order_date')
+                    timestamp_s = timestamp_ms / 1000
+                    if timestamp_s:
+                        data_convertida = datetime.fromtimestamp(int(timestamp_s)).strftime("%d/%m/%Y-%H:%M")
                     else:
                         data_convertida = "Data não disponível"
     
