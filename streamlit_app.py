@@ -92,6 +92,46 @@ if st.button('Buscar Compras'):
                 st.error(f'Ocorreu um erro ao buscar as compras: {e}')
 
          # Chamada à API para obter informações do comprador
+            # Função para buscar informações do comprador
+        def buscar_informacoes_comprador(email, participantes):
+            try:
+        # Percorre os participantes para buscar o comprador (BUYER)
+                for participante in participantes:
+                    users = participante.get("users", [])
+                    for user_data in users:
+                        if user_data.get("role") == "BUYER" and user_data["user"]["email"] == email:
+                            buyer_info = user_data["user"]
+                            return buyer_info
+                return None
+            except Exception as e:
+                st.error(f"Erro ao processar informações do comprador: {e}")
+                return None
+
+# Dentro do bloco de busca
+        #if email:
+            try:
+        # Chamada à API para obter os participantes
+                participantes = hotmart.get_sales_participants(buyer_email=email)
+
+
+        # Buscar informações do comprador
+                comprador = buscar_informacoes_comprador(email, participantes)
+                if comprador:
+                    st.subheader("Informações do Comprador:")
+                    st.write(f"Nome: {comprador.get('name', 'Não disponível')}")
+                    st.write(f"Telefone: {comprador.get('phone', 'Não disponível')}")
+                    st.write(f"Endereço: {comprador.get('address', {}).get('address', 'Não disponível')}, "
+                             f"{comprador.get('address', {}).get('city', 'Não disponível')} - "
+                             f"{comprador.get('address', {}).get('state', 'Não disponível')}")
+                    st.write(f"CEP: {comprador.get('address', {}).get('zip_code', 'Não disponível')}")
+                    st.write(f"CPF/CNPJ: {[doc['value'] for doc in comprador.get('documents', [])]}")
+                else:
+                    st.warning("Nenhuma informação do comprador encontrada.")
+            except Exception as e:
+                st.error(f"Ocorreu um erro ao buscar as informações: {e}")
+
+
+            
             comprador = hotmart.get_sales_participants(buyer_email=email)
             if comprador:
                 st.subheader('Informações do Comprador:')
