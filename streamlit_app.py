@@ -142,11 +142,11 @@ import pandas as pd
 import streamlit as st
 
 # Função para fazer requisição à API da Curseduca
-def fetch_progress_report(api_url, token, email):
+def fetch_progress_report(api_key, token, email):
     try:
         headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
         payload = {"email": email}  # Filtro por e-mail
-        response = requests.post(api_url, headers=headers, json=payload)
+        response = requests.post(f"https://clas.curseduca.pro/reports/progress?api_key={api_key}", headers=headers, json=payload)
 
         # Verifica se a resposta foi bem-sucedida
         if response.status_code == 200:
