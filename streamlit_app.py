@@ -80,7 +80,7 @@ if st.button('Buscar Compras'):
                     if timestamp:
                         data_convertida = datetime.fromtimestamp(int(timestamp)).strftime("%d/%m/%Y-%H:%M")
                     else:
-                    data_convertida = "Data não disponível"
+                        data_convertida = "Data não disponível"
     
                     st.write(f"Data da Compra: {data_convertida}")
                     #st.write(f"Data da Compra: {venda.get('purchase',{}).get('order_date')}")
