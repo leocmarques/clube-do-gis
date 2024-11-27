@@ -3,7 +3,7 @@ from hotmart_python import Hotmart
 import logging
 from datetime import datetime
 import hmac
-import panda as pd
+import pandas as pd
 
 
 def check_password():
