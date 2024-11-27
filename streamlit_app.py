@@ -84,6 +84,13 @@ if st.button('Buscar Compras'):
             else:
                 st.warning('Nenhuma compra encontrada para este e-mail.')
 
+
+            try:
+                comprador = hotmart.get_sales_participants(buyer_email=email)
+                st.write(comprador)  # Exibe o retorno completo na interface para inspeção
+            except Exception as e:
+                st.error(f'Ocorreu um erro ao buscar as compras: {e}')
+
          # Chamada à API para obter informações do comprador
             comprador = hotmart.get_sales_participants(buyer_email=email)
             if comprador:
