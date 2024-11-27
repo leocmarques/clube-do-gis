@@ -3,6 +3,7 @@ from hotmart_python import Hotmart
 import logging
 from datetime import datetime
 import hmac
+import panda as pd
 
 
 def check_password():
@@ -80,6 +81,21 @@ email = st.text_input('Digite o e-mail do comprador:')
 if st.button('Buscar Compras'):
     if email:
         try:
+             # Chamada à API para obter os participantes
+            participantes = hotmart.get_sales_participants(buyer_email=email)
+            comprador = buscar_informacoes_comprador(email, participantes)
+            if comprador:
+                st.subheader("Informações do Comprador:")
+                st.write(f"Nome: {comprador.get('name', 'Não disponível')}")
+                st.write(f"Telefone: {comprador.get('phone', 'Não disponível')}")
+                st.write(f"Endereço: {comprador.get('address', {}).get('address', 'Não disponível')}, "
+                         f"{comprador.get('address', {}).get('city', 'Não disponível')} - "
+                         f"{comprador.get('address', {}).get('state', 'Não disponível')}")
+                st.write(f"CEP: {comprador.get('address', {}).get('zip_code', 'Não disponível')}")
+                st.write(f"CPF/CNPJ: {[doc['value'] for doc in comprador.get('documents', [])]}")
+            else:
+                st.warning("Nenhuma informação do comprador encontrada.")
+            
             # Chamada à API para obter o histórico de vendas
             vendas = hotmart.get_sales_history(buyer_email=email)
             if vendas:
@@ -94,21 +110,7 @@ if st.button('Buscar Compras'):
                     st.write("---")
             else:
                 st.warning('Nenhuma compra encontrada para este e-mail.')
-
-            # Chamada à API para obter os participantes
-            participantes = hotmart.get_sales_participants(buyer_email=email)
-            comprador = buscar_informacoes_comprador(email, participantes)
-            if comprador:
-                st.subheader("Informações do Comprador:")
-                st.write(f"Nome: {comprador.get('name', 'Não disponível')}")
-                st.write(f"Telefone: {comprador.get('phone', 'Não disponível')}")
-                st.write(f"Endereço: {comprador.get('address', {}).get('address', 'Não disponível')}, "
-                         f"{comprador.get('address', {}).get('city', 'Não disponível')} - "
-                         f"{comprador.get('address', {}).get('state', 'Não disponível')}")
-                st.write(f"CEP: {comprador.get('address', {}).get('zip_code', 'Não disponível')}")
-                st.write(f"CPF/CNPJ: {[doc['value'] for doc in comprador.get('documents', [])]}")
-            else:
-                st.warning("Nenhuma informação do comprador encontrada.")
+           
         except Exception as e:
             st.error(f"Ocorreu um erro ao buscar as informações: {e}")
     else:
