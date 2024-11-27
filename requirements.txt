@@ -2,3 +2,4 @@ streamlit
 hotmart-python
 python-dotenv
 pandas
+requests
