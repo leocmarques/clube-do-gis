@@ -146,7 +146,7 @@ def fetch_progress_report(api_key, token, email):
     try:
         headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
         payload = {"email": email}  # Filtro por e-mail
-        response = requests.get(f"https://clas.curseduca.pro/reports/progress?api_key={api_key}&member={email}", headers=headers, json=payload)
+        response = requests.get(f"https://prof.curseduca.pro/reports/access?api_key={api_key}&search={email}", headers=headers, json=payload)
 
         # Verifica se a resposta foi bem-sucedida
         if response.status_code == 200:
