@@ -85,7 +85,7 @@ if st.button('Buscar Compras'):
                 st.warning('Nenhuma compra encontrada para este e-mail.')
 
          # Chamada à API para obter informações do comprador
-            comprador = hotmart.get_buyer(email=email)
+            comprador = hotmart.get_sales_participants(buyer_email=email)
             if comprador:
                 st.subheader('Informações do Comprador:')
                 st.write(f"Nome: {comprador.get('name')}")
