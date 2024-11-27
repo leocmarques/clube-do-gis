@@ -85,7 +85,9 @@ if st.button('Buscar Compras'):
     
                     st.write(f"Data da Compra: {data_convertida}")
                     #st.write(f"Data da Compra: {venda.get('purchase',{}).get('order_date')}")
+                    st.write(f"Valor: {venda.get('purchase',{}).get('hotmart_fee').get('base')}")
                     st.write(f"Status: {venda.get('purchase',{}).get('status')}")
+
                     st.write("---")
             else:
                 st.warning('Nenhuma compra encontrada para este e-mail.')
