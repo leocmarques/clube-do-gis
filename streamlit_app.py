@@ -72,57 +72,75 @@ def buscar_informacoes_comprador(email, participantes):
 
 
 # Título do aplicativo
-st.title('Consulta de Compras na Hotmart por E-mail')
+st.title("Dashboard Geral")
 
-# Entrada de e-mail pelo usuário
-email = st.text_input('Digite o e-mail do comprador:')
+# Abas do aplicativo
+tabs = st.tabs(["Hotmart", "Curseduca", "Google Sheets"])
 
-# Botão para iniciar a busca
-if st.button('Buscar Compras'):
-    if email:
-        try:
-            # Chamada à API para obter os participantes
-            participantes = hotmart.get_sales_participants(buyer_email=email)
-            comprador = buscar_informacoes_comprador(email, participantes)
-            if comprador:
-                st.subheader("Informações do Comprador:")
-                st.write(f"Nome: {comprador.get('name', 'Não disponível')}")
-                st.write(f"Telefone: {comprador.get('phone', 'Não disponível')}")
-                st.write(f"Endereço: {comprador.get('address', {}).get('address', 'Não disponível')}, "
-                         f"{comprador.get('address', {}).get('city', 'Não disponível')} - "
-                         f"{comprador.get('address', {}).get('state', 'Não disponível')}")
-                st.write(f"CEP: {comprador.get('address', {}).get('zip_code', 'Não disponível')}")
-                st.write(f"CPF/CNPJ: {[doc['value'] for doc in comprador.get('documents', [])]}")
-            else:
-                st.warning("Nenhuma informação do comprador encontrada.")
+# Conteúdo da aba "Hotmart"
+with tabs[0]:
+    st.header("Consulta de Compras na Hotmart")
+    # Entrada de e-mail pelo usuário
+    email = st.text_input("Digite o e-mail do comprador:", key="hotmart_email")
 
-            # Chamada à API para obter o histórico de vendas
-            vendas = hotmart.get_sales_history(buyer_email=email)
-            if vendas:
-                st.success(f'Foram encontradas {len(vendas)} compras para o e-mail {email}.')
+    # Botão para iniciar a busca
+    if st.button("Buscar Compras", key="buscar_compras"):
+        if email:
+            try:
+                # Chamada à API para obter os participantes
+                participantes = hotmart.get_sales_participants(buyer_email=email)
+                comprador = buscar_informacoes_comprador(email, participantes)
+                if comprador:
+                    st.subheader("Informações do Comprador:")
+                    st.write(f"Nome: {comprador.get('name', 'Não disponível')}")
+                    st.write(f"Telefone: {comprador.get('phone', 'Não disponível')}")
+                    st.write(f"Endereço: {comprador.get('address', {}).get('address', 'Não disponível')}, "
+                             f"{comprador.get('address', {}).get('city', 'Não disponível')} - "
+                             f"{comprador.get('address', {}).get('state', 'Não disponível')}")
+                    st.write(f"CEP: {comprador.get('address', {}).get('zip_code', 'Não disponível')}")
+                    st.write(f"CPF/CNPJ: {[doc['value'] for doc in comprador.get('documents', [])]}")
+                else:
+                    st.warning("Nenhuma informação do comprador encontrada.")
 
-                # Criando uma lista para armazenar as informações de vendas
-                vendas_data = []
-                for venda in vendas:
-                    data_compra = converter_timestamp(venda.get('purchase', {}).get('order_date'))
-                    vendas_data.append({
-                        "ID da Venda": venda.get('purchase', {}).get('transaction'),
-                        "Produto": venda.get('product', {}).get('name'),
-                        "Data da Compra": data_compra,
-                        "Valor": venda.get('purchase', {}).get('hotmart_fee', {}).get('base', 'Não disponível'),
-                        "Status": venda.get('purchase', {}).get('status', 'Não disponível'),
-                    })
+                # Chamada à API para obter o histórico de vendas
+                vendas = hotmart.get_sales_history(buyer_email=email)
+                if vendas:
+                    st.success(f"Foram encontradas {len(vendas)} compras para o e-mail {email}.")
 
-                # Convertendo a lista de vendas em um DataFrame
-                df_vendas = pd.DataFrame(vendas_data)
+                    # Criando uma lista para armazenar as informações de vendas
+                    vendas_data = []
+                    for venda in vendas:
+                        data_compra = converter_timestamp(venda.get('purchase', {}).get('order_date'))
+                        vendas_data.append({
+                            "ID da Venda": venda.get('purchase', {}).get('transaction'),
+                            "Produto": venda.get('product', {}).get('name'),
+                            "Data da Compra": data_compra,
+                            "Valor": venda.get('purchase', {}).get('hotmart_fee', {}).get('base', 'Não disponível'),
+                            "Status": venda.get('purchase', {}).get('status', 'Não disponível'),
+                        })
 
-                # Exibindo os dados como uma tabela interativa
-                st.dataframe(df_vendas)
+                    # Convertendo a lista de vendas em um DataFrame
+                    df_vendas = pd.DataFrame(vendas_data)
 
-            else:
-                st.warning('Nenhuma compra encontrada para este e-mail.')
+                    # Exibindo os dados como uma tabela interativa
+                    st.dataframe(df_vendas)
 
-        except Exception as e:
-            st.error(f"Ocorreu um erro ao buscar as informações: {e}")
-    else:
-        st.warning('Por favor, insira um e-mail válido.')
+                else:
+                    st.warning("Nenhuma compra encontrada para este e-mail.")
+
+            except Exception as e:
+                st.error(f"Ocorreu um erro ao buscar as informações: {e}")
+        else:
+            st.warning("Por favor, insira um e-mail válido.")
+
+# Conteúdo da aba "Curseduca"
+with tabs[1]:
+    st.header("Aba Curseduca")
+    st.write("Conteúdo relacionado ao sistema Curseduca será exibido aqui.")
+    # Adicione a lógica e elementos visuais necessários para a aba Curseduca.
+
+# Conteúdo da aba "Google Sheets"
+with tabs[2]:
+    st.header("Aba Google Sheets")
+    st.write("Conteúdo relacionado ao Google Sheets será exibido aqui.")
+    # Adicione a lógica e elementos visuais necessários para a aba Google Sheets.
