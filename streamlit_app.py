@@ -103,7 +103,7 @@ if st.button('Buscar Compras'):
                             buyer_info = user_data["user"]
                             return buyer_info
                 return None
-            except Exception as e:
+        except Exception as e:
                 st.error(f"Erro ao processar informações do comprador: {e}")
                 return None
 
