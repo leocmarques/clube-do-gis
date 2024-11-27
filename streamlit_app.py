@@ -1,6 +1,8 @@
 import streamlit as st
 from hotmart_python import Hotmart
 import logging
+from datetime import datetime
+
 
 
 import hmac
@@ -74,7 +76,14 @@ if st.button('Buscar Compras'):
                 for venda in vendas:
                     st.write(f"ID da Venda: {venda.get('purchase',{}).get('transaction')}")
                     st.write(f"Produto: {venda.get('product', {}).get('name')}")
-                    st.write(f"Data da Compra: {venda.get('purchase',{}).get('order_date')}")
+                    timestamp = venda.get('purchase',{}).get('order_date')
+                    if timestamp:
+                        data_convertida = datetime.fromtimestamp(int(timestamp)).strftime("%d/%m/%Y-%H:%M")
+                    else:
+                    data_convertida = "Data não disponível"
+    
+                    st.write(f"Data da Compra: {data_convertida}")
+                    #st.write(f"Data da Compra: {venda.get('purchase',{}).get('order_date')}")
                     st.write(f"Status: {venda.get('purchase',{}).get('status')}")
                     st.write("---")
             else:
