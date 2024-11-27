@@ -2,11 +2,7 @@ import streamlit as st
 from hotmart_python import Hotmart
 import logging
 from datetime import datetime
-
-
-
 import hmac
-import streamlit as st
 
 
 def check_password():
@@ -51,6 +47,29 @@ hotmart = Hotmart(
     log_level=logging.INFO
 )
 
+# Função para converter timestamp
+def converter_timestamp(timestamp_ms):
+    try:
+        timestamp_s = timestamp_ms / 1000
+        return datetime.fromtimestamp(int(timestamp_s)).strftime("%d/%m/%Y-%H:%M")
+    except (TypeError, ValueError):
+        return "Data não disponível"
+
+# Função para buscar informações do comprador
+def buscar_informacoes_comprador(email, participantes):
+    try:
+        # Percorre os participantes para buscar o comprador (BUYER)
+        for participante in participantes:
+            users = participante.get("users", [])
+            for user_data in users:
+                if user_data.get("role") == "BUYER" and user_data["user"]["email"] == email:
+                    return user_data["user"]
+        return None
+    except Exception as e:
+        st.error(f"Erro ao processar informações do comprador: {e}")
+        return None
+
+
 # Título do aplicativo
 st.title('Consulta de Compras na Hotmart por E-mail')
 
@@ -60,90 +79,37 @@ email = st.text_input('Digite o e-mail do comprador:')
 # Botão para iniciar a busca
 if st.button('Buscar Compras'):
     if email:
-        # Chamada à API para obter o histórico de vendas 
         try:
+            # Chamada à API para obter o histórico de vendas
             vendas = hotmart.get_sales_history(buyer_email=email)
             if vendas:
                 st.success(f'Foram encontradas {len(vendas)} compras para o e-mail {email}.')
                 for venda in vendas:
-                    st.write(f"ID da Venda: {venda.get('purchase',{}).get('transaction')}")
+                    st.write(f"ID da Venda: {venda.get('purchase', {}).get('transaction')}")
                     st.write(f"Produto: {venda.get('product', {}).get('name')}")
-                    timestamp_ms = venda.get('purchase',{}).get('order_date')
-                    timestamp_s = timestamp_ms / 1000
-                    if timestamp_s:
-                        data_convertida = datetime.fromtimestamp(int(timestamp_s)).strftime("%d/%m/%Y-%H:%M")
-                    else:
-                        data_convertida = "Data não disponível"
-    
-                    st.write(f"Data da Compra: {data_convertida}")
-                    #st.write(f"Data da Compra: {venda.get('purchase',{}).get('order_date')}")
-                    st.write(f"Valor: {venda.get('purchase',{}).get('hotmart_fee').get('base')}")
-                    st.write(f"Status: {venda.get('purchase',{}).get('status')}")
-
+                    data_compra = converter_timestamp(venda.get('purchase', {}).get('order_date'))
+                    st.write(f"Data da Compra: {data_compra}")
+                    st.write(f"Valor: {venda.get('purchase', {}).get('hotmart_fee', {}).get('base')}")
+                    st.write(f"Status: {venda.get('purchase', {}).get('status')}")
                     st.write("---")
             else:
                 st.warning('Nenhuma compra encontrada para este e-mail.')
 
-
-            try:
-                comprador = hotmart.get_sales_participants(buyer_email=email)
-                st.write(comprador)  # Exibe o retorno completo na interface para inspeção
-            except Exception as e:
-                st.error(f'Ocorreu um erro ao buscar as compras: {e}')
-
-         # Chamada à API para obter informações do comprador
-            # Função para buscar informações do comprador
-        def buscar_informacoes_comprador(email, participantes):
-            try:
-        # Percorre os participantes para buscar o comprador (BUYER)
-                for participante in participantes:
-                    users = participante.get("users", [])
-                    for user_data in users:
-                        if user_data.get("role") == "BUYER" and user_data["user"]["email"] == email:
-                            buyer_info = user_data["user"]
-                            return buyer_info
-                return None
-            except Exception as e:
-                st.error(f"Erro ao processar informações do comprador: {e}")
-            return None
-
-# Dentro do bloco de busca
-        #if email:
-            try:
-        # Chamada à API para obter os participantes
-                participantes = hotmart.get_sales_participants(buyer_email=email)
-
-
-        # Buscar informações do comprador
-                comprador = buscar_informacoes_comprador(email, participantes)
-                if comprador:
-                    st.subheader("Informações do Comprador:")
-                    st.write(f"Nome: {comprador.get('name', 'Não disponível')}")
-                    st.write(f"Telefone: {comprador.get('phone', 'Não disponível')}")
-                    st.write(f"Endereço: {comprador.get('address', {}).get('address', 'Não disponível')}, "
-                             f"{comprador.get('address', {}).get('city', 'Não disponível')} - "
-                             f"{comprador.get('address', {}).get('state', 'Não disponível')}")
-                    st.write(f"CEP: {comprador.get('address', {}).get('zip_code', 'Não disponível')}")
-                    st.write(f"CPF/CNPJ: {[doc['value'] for doc in comprador.get('documents', [])]}")
-                else:
-                    st.warning("Nenhuma informação do comprador encontrada.")
-            except Exception as e:
-                st.error(f"Ocorreu um erro ao buscar as informações: {e}")
-
-
-            
-            comprador = hotmart.get_sales_participants(buyer_email=email)
+            # Chamada à API para obter os participantes
+            participantes = hotmart.get_sales_participants(buyer_email=email)
+            comprador = buscar_informacoes_comprador(email, participantes)
             if comprador:
-                st.subheader('Informações do Comprador:')
-                st.write(f"Nome: {comprador.get('name')}")
-                st.write(f"País: {comprador.get('country')}")
-                st.write(f"Estado: {comprador.get('state')}")
-                st.write(f"Cidade: {comprador.get('city')}")
-                st.write(f"Telefone: {comprador.get('phone')}")
+                st.subheader("Informações do Comprador:")
+                st.write(f"Nome: {comprador.get('name', 'Não disponível')}")
+                st.write(f"Telefone: {comprador.get('phone', 'Não disponível')}")
+                st.write(f"Endereço: {comprador.get('address', {}).get('address', 'Não disponível')}, "
+                         f"{comprador.get('address', {}).get('city', 'Não disponível')} - "
+                         f"{comprador.get('address', {}).get('state', 'Não disponível')}")
+                st.write(f"CEP: {comprador.get('address', {}).get('zip_code', 'Não disponível')}")
+                st.write(f"CPF/CNPJ: {[doc['value'] for doc in comprador.get('documents', [])]}")
             else:
-                st.warning('Nenhuma informação adicional do comprador encontrada.')
+                st.warning("Nenhuma informação do comprador encontrada.")
         except Exception as e:
-            st.error(f'Ocorreu um erro ao buscar as informações: {e}')
-
+            st.error(f"Ocorreu um erro ao buscar as informações: {e}")
     else:
         st.warning('Por favor, insira um e-mail válido.')
