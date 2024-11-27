@@ -60,15 +60,7 @@ email = st.text_input('Digite o e-mail do comprador:')
 # Botão para iniciar a busca
 if st.button('Buscar Compras'):
     if email:
-        # Chamada à API para obter o histórico de vendas
-
-        try:
-            vendas = hotmart.get_sales_history(buyer_email=email)
-            st.write(vendas)  # Exibe o retorno completo na interface para inspeção
-        except Exception as e:
-            st.error(f'Ocorreu um erro ao buscar as compras: {e}')
-
-        
+        # Chamada à API para obter o histórico de vendas 
         try:
             vendas = hotmart.get_sales_history(buyer_email=email)
             if vendas:
@@ -91,7 +83,20 @@ if st.button('Buscar Compras'):
                     st.write("---")
             else:
                 st.warning('Nenhuma compra encontrada para este e-mail.')
+
+         # Chamada à API para obter informações do comprador
+        comprador = hotmart.get_buyer(email=email)
+            if comprador:
+                st.subheader('Informações do Comprador:')
+                st.write(f"Nome: {comprador.get('name')}")
+                st.write(f"País: {comprador.get('country')}")
+                st.write(f"Estado: {comprador.get('state')}")
+                st.write(f"Cidade: {comprador.get('city')}")
+                st.write(f"Telefone: {comprador.get('phone')}")
+            else:
+                st.warning('Nenhuma informação adicional do comprador encontrada.')
         except Exception as e:
-            st.error(f'Ocorreu um erro ao buscar as compras: {e}')
+            st.error(f'Ocorreu um erro ao buscar as informações: {e}')
+
     else:
         st.warning('Por favor, insira um e-mail válido.')
