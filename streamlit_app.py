@@ -73,7 +73,7 @@ def buscar_informacoes_comprador(email, participantes):
 
 
 # Título do aplicativo
-st.title("Dashboard Geral")
+st.title("Dashboard de Suporte - Clube do GIS")
 
 # Abas do aplicativo
 tabs = st.tabs(["Hotmart", "Curseduca", "Google Sheets"])
@@ -182,6 +182,7 @@ with tabs[1]:
 
                 # Exiba os dados em formato de tabela
                 st.dataframe(df)
+                st.write(data)
             else:
                 st.warning("Nenhum dado encontrado para o e-mail informado.")
         else:
